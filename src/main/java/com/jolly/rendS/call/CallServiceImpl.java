@@ -1,9 +1,16 @@
 package com.jolly.rendS.call;
 
+import com.jolly.rendS.call.dtos.CreatedCallDto;
+import com.jolly.rendS.call.dtos.JoinedCallDto;
+import com.jolly.rendS.call.dtos.MemberDto;
+import com.jolly.rendS.utils.CustomBadRequestException;
 import com.jolly.rendS.utils.UserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -12,33 +19,45 @@ public class CallServiceImpl implements CallService {
     private final CallRepository callRepository;
     private final CallMembersRepository callMembersRepository;
     private final CallIdentifierGenerator identifierGenerator;
-    private final SimpMessagingTemplate simpMessagingTemplate;
     private final UserUtils userUtils;
 
     @Override
-    public String initiateCall(String sdp) {
-        String identifier = identifierGenerator.generate();
+    public CreatedCallDto initiateCall() {
+        String callIdentifier = identifierGenerator.generate();
         var user = userUtils.getLoggedUser();
         var call = Call.builder()
                 .initiator(user)
                 .isActive(true)
-                .uniqueCode(identifier)
+                .uniqueCode(callIdentifier)
                 .build();
         callRepository.save(call);
 
+        String callerIdentifier = user.getEmail() + identifierGenerator.generate();
         CallMember callMember = CallMember.builder()
                 .call(call)
-                .sdp(sdp)
                 .user(user)
+                .userIdentifier(callerIdentifier)
                 .build();
         callMembersRepository.save(callMember);
 
-        return identifier;
+        return new CreatedCallDto(callIdentifier, callerIdentifier);
     }
 
     @Override
-    public void provideSdp() {
-        System.out.println("usao");
-        simpMessagingTemplate.convertAndSendToUser("john123", "/queue/private", "Hello, John!");;
+    public JoinedCallDto joinCall(String callId) {
+        Call call = callRepository.findByUniqueCode(callId)
+                .orElseThrow(() -> new CustomBadRequestException("Call does not exist"));
+
+        List<CallMember> members = callMembersRepository.getAllByCall(call);
+        var user = userUtils.getLoggedUser();
+        String memberId = user.getEmail() + identifierGenerator.generate();
+
+        return new JoinedCallDto(callId, memberId, members.stream()
+                .map((member) -> MemberDto.builder()
+                        .email(member.getUser().getEmail())
+                        .name(member.getUser().getName())
+                        .surname(member.getUser().getSurname())
+                        .memberId(member.getUserIdentifier())
+                        .build()).collect(Collectors.toList()));
     }
 }

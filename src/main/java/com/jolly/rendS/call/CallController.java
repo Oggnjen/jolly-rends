@@ -1,5 +1,7 @@
 package com.jolly.rendS.call;
 
+import com.jolly.rendS.call.dtos.CreatedCallDto;
+import com.jolly.rendS.call.dtos.JoinedCallDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,13 +13,13 @@ public class CallController {
     private final CallService callService;
 
     @PostMapping
-    public String initiateCall(@RequestBody SdpDto sdp) {
-        callService.provideSdp();
-        return callService.initiateCall(sdp.sdp());
+    public CreatedCallDto initiateCall() {
+        return callService.initiateCall();
     }
 
-    @GetMapping
-    public void test() {
-        callService.provideSdp();
+    @PostMapping(path = "/{callId}")
+    public JoinedCallDto initiateCall(@PathVariable String callId) {
+        return callService.joinCall(callId);
     }
+
 }

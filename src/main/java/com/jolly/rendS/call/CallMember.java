@@ -19,9 +19,8 @@ public class CallMember {
     @ManyToOne
     private Call call;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private User user;
 
-    @Column(length = 5000)
-    private String sdp;
+    private String userIdentifier;
 }
