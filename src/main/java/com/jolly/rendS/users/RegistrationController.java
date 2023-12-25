@@ -1,7 +1,5 @@
 package com.jolly.rendS.users;
 
-import com.jolly.rendS.rabbitmq.RabbitMQProducer;
-import com.jolly.rendS.rabbitmq.Receiver;
 import com.jolly.rendS.users.dtos.RegisterUserDto;
 import com.jolly.rendS.users.dtos.UserDto;
 import lombok.RequiredArgsConstructor;
