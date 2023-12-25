@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class RegistrationController {
 
     private final UserService userService;
-
-    private final RabbitTemplate rabbitTemplate;
-    private final Receiver receiver;
+//
+//    private final RabbitTemplate rabbitTemplate;
+//    private final Receiver receiver;
 
     @PostMapping
     public UserDto register(@RequestBody RegisterUserDto userDto) {
-        rabbitTemplate.convertAndSend("myexchange", "jolly.key", "Hello from RabbitMQ!");
+//        rabbitTemplate.convertAndSend("myexchange", "jolly.key", "Hello from RabbitMQ!");
         return userService.register(userDto);
     }
 
