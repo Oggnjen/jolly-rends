@@ -14,6 +14,6 @@ public class SdpController {
 
     @PostMapping
     public void provideSdp(@RequestBody SdpDto sdpDto) {
-        sdpService.provideSdp(new SdpPayload(sdpDto.memberId(),sdpDto.sdp()), sdpDto.destination());
+        sdpService.provideSdp(new SdpPayload(sdpDto.memberDto(),sdpDto.sdp(), sdpDto.requestType()), sdpDto.destination());
     }
 }

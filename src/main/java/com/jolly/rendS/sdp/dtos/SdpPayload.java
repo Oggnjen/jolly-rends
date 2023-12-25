@@ -1,4 +1,6 @@
 package com.jolly.rendS.sdp.dtos;
 
-public record SdpPayload(String memberId, String sdp) {
+import com.jolly.rendS.call.dtos.MemberDto;
+
+public record SdpPayload(MemberDto memberDto, String sdp, String requestType) {
 }

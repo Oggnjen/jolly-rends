@@ -32,7 +32,7 @@ public class CallServiceImpl implements CallService {
                 .build();
         callRepository.save(call);
 
-        String callerIdentifier = user.getEmail() + identifierGenerator.generate();
+        String callerIdentifier = user.getEmail();
         CallMember callMember = CallMember.builder()
                 .call(call)
                 .user(user)
@@ -40,7 +40,7 @@ public class CallServiceImpl implements CallService {
                 .build();
         callMembersRepository.save(callMember);
 
-        return new CreatedCallDto(callIdentifier, callerIdentifier);
+        return new CreatedCallDto(callIdentifier, callerIdentifier, user.getName(), user.getSurname(), user.getEmail());
     }
 
     @Override
@@ -50,9 +50,14 @@ public class CallServiceImpl implements CallService {
 
         List<CallMember> members = callMembersRepository.getAllByCall(call);
         var user = userUtils.getLoggedUser();
-        String memberId = user.getEmail() + identifierGenerator.generate();
-
-        return new JoinedCallDto(callId, memberId, members.stream()
+        String memberId = user.getEmail();
+        CallMember callMember = CallMember.builder()
+                .user(user)
+                .call(call)
+                .userIdentifier(user.getEmail())
+                .build();
+        callMembersRepository.save(callMember);
+        return new JoinedCallDto(callId, memberId, user.getName(),user.getSurname(),user.getEmail(),members.stream()
                 .map((member) -> MemberDto.builder()
                         .email(member.getUser().getEmail())
                         .name(member.getUser().getName())
